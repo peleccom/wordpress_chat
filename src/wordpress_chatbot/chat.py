@@ -1,12 +1,13 @@
-"""Chainlit chat UI handlers."""
+"""Chainlit chat UI handlers with streaming."""
 
 from __future__ import annotations
 
 import logging
 
 import chainlit as cl
+from langchain_core.messages import AIMessage, AIMessageChunk
 
-from wordpress_chatbot.graph.agent import run_agent
+from wordpress_chatbot.graph.agent import get_agent
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +38,22 @@ async def on_message(message: cl.Message) -> None:
     if not question:
         return
 
-    msg = cl.Message(content="")
-    await msg.send()
+    final_answer = cl.Message(content="")
 
     try:
-        result = run_agent(question)
-        await cl.Message(content=result["response"]).send()
+        agent = get_agent()
+
+        async for msg, metadata in agent.astream(
+            {"messages": [{"role": "user", "content": question}]},
+            stream_mode="messages",
+        ):
+            if isinstance(msg, AIMessage):
+                internal_node = metadata.get("disable_streaming") and isinstance(msg, AIMessageChunk)
+                if not msg.tool_calls and not internal_node and msg.content:
+                    await final_answer.stream_token(msg.content)
+
+        await final_answer.send()
+
     except Exception as exc:
         logger.exception("Error processing message")
         await cl.Message(content=f"⚠️ Sorry, something went wrong: {exc}").send()

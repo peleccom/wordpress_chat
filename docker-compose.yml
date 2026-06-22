@@ -14,6 +14,8 @@ services:
     command:
       ["uv", "run", "fastapi", "run", "src/wordpress_chatbot/main.py", "--reload"]
     env_file:
+    - path: ./envs/local.env
+      required: true # default
     - path: ./.env
       required: false
     ports:

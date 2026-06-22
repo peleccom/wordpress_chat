@@ -8,10 +8,16 @@ from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 
+
+from wordpress_chatbot.graph.middlewares import handle_tool_errors_middleware
 from wordpress_chatbot.providers.wordpress_mock import WordPressMockProvider
 from wordpress_chatbot.settings import settings
 
+
 provider = WordPressMockProvider()
+
+
+
 
 
 @tool
@@ -102,14 +108,8 @@ def get_agent():
             model=model,
             tools=tools,
             system_prompt=SYSTEM_PROMPT,
+            middleware=[
+                handle_tool_errors_middleware
+            ]
         )
     return _agent
-
-
-def run_agent(question: str) -> dict[str, Any]:
-    """Run the agent with a question and return the response."""
-    agent = get_agent()
-    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-    messages = result["messages"]
-    response = messages[-1].content if messages else ""
-    return {"response": response}
