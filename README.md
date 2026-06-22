@@ -1,9 +1,10 @@
 # WordPress Insights Chat
 
-AI-powered WordPress analytics platform with MCP (Model Context Protocol), LangChain agent orchestration (`create_agent`), and Chainlit chat UI.
+AI-powered WordPress analytics platform with MCP (Model Context Protocol), LangChain agent orchestration, and Chainlit chat UI.
 
 Ask natural language questions about your WordPress deployment and receive actionable insights — all powered by mock data for development.
 
+> See [`demo.md`](demo.md) for screenshots and usage examples.
 > See [`architecture.md`](architecture.md) for project structure and architecture details.
 
 ## Quick Start
@@ -16,7 +17,7 @@ make install
 make run
 ```
 
-Open **http://localhost:8000** for the Chainlit chat UI.
+Open **http://localhost:8000** for the Chainlit streaming chat UI.
 
 Use **http://localhost:8000/mcp** to connect an MCP client.
 
