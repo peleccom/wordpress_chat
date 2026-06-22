@@ -1,0 +1,27 @@
+{
+  "user_profile": {
+    "description": "Durable facts the user stated about themselves across conversation threads.",
+    "suggested_fields": {
+      "email": "Contact email when the user agreed to share it",
+      "name": "User name if the user mentioned it",
+      "company": "Company or organization the user named",
+      "role": "User's role slug",
+      "notes": "Other facts the user said about themselves (not assistant content)"
+    }
+  },
+  "dialog_summary": {
+    "description": "Running summary of what the user has said in the current conversation thread. Omit fields you cannot infer from user messages.",
+    "suggested_fields": {
+      "industry": "User's industry",
+      "challenge": "Primary pain",
+      "maturity": "AI or digital maturity",
+      "outcome": "Desired outcome",
+      "tech_stack": "Technologies or platforms the user named (free text or list)",
+      "services_discussed": "EffectiveSoft services or topics the user asked about or showed interest in",
+      "case_study_interests": "Case study domains or examples the user asked for or reacted to",
+      "constraints": "Budget, timeline, compliance, or other limits the user stated",
+      "next_steps": "Follow-ups the user requested or agreed to (not bot suggestions)",
+      "notes": "Other user-stated facts only \u2014 never assistant recommendations or bot replies"
+    }
+  }
+}

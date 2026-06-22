@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: chatbot
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot -d chatbot"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  postgres-test:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: chatbot_test
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot -d chatbot_test"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  app-base: &app-base
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+
+  app: &app
+    <<: *app-base
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./parsed:/app/parsed
+      - ./.chainlit:/app/.chainlit
+    command:
+      ["chainlit", "run", "src/wordpress_chatbot/chat.py", "-w"]
+    env_file:
+    - path: ./envs/local.env
+      required: true # default
+    - path: ./.env
+      required: false
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  app-tests: &app-tests
+    <<: *app-base
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    env_file:
+      - envs/testing.env
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    command: >
+       bash -c "uv run python -m pytest --doctest-modules"
+
+
+volumes:
+  pgdata:
