@@ -10,10 +10,9 @@ services:
     volumes:
       - ./src:/app/src
       - ./public:/app/public
-      - ./parsed:/app/parsed
       - ./.chainlit:/app/.chainlit
     command:
-      ["uv", "run", "chainlit", "run", "src/wordpress_chatbot/chat.py", "-w", "--host", "0.0.0.0"]
+      ["uv", "run", "fastapi", "run", "src/wordpress_chatbot/main.py", "--reload"]
     env_file:
     - path: ./.env
       required: false
@@ -28,7 +27,3 @@ services:
       - ./tests:/app/tests
     command: >
        bash -c "uv run python -m pytest --doctest-modules"
-
-
-volumes:
-  pgdata:
