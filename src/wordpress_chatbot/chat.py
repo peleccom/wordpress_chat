@@ -2,11 +2,7 @@ import asyncio
 import logging
 
 import chainlit as cl
-from wordpress_chatbot.ai.context import ChatContext
-from wordpress_chatbot.ai.tool_status import status_for_tool_calls
-from wordpress_chatbot.app import app
-from wordpress_chatbot.core.chainlit_utls import (remove_meessage,
-                                                   show_tool_status_message)
+from wordpress_chatbot.ai.agents import agent
 from fastapi.security.oauth2 import OAuth2Model, OAuthFlowsModel
 from langchain.messages import AIMessage, HumanMessage
 from langchain_core.messages import AIMessageChunk
@@ -28,29 +24,18 @@ async def on_message(message: cl.Message):
 
 async def _stream_message(thread_id: str, user: cl.User, content: str):
     config = {"configurable": {"thread_id": thread_id}}
-    context = ChatContext(user_id=user.identifier)
     final_answer = cl.Message(content="")
     working_message: cl.Message | None = None
     # stream_mode="messages" captures the output from the final node
-    async for msg, metadata in app.state.agent_graph.astream(
+    async for msg, metadata in agent.astream(
         {"messages": [HumanMessage(content=content)]},
         stream_mode="messages",
         config=config,
-        context=context,
     ):
         if isinstance(msg, AIMessage):
 
             internal_node = metadata.get("disable_streaming") and isinstance(msg, AIMessageChunk)
-            if msg.tool_calls:
-                label = status_for_tool_calls(msg.tool_calls)
-                if label:
-                    if working_message is None:
-                        working_message = await show_tool_status_message(label)
-                    elif working_message.content != label:
-                        await working_message.remove()
-                        await asyncio.sleep(0.5)
-                        working_message = await show_tool_status_message(label)
-            elif not msg.tool_calls and not internal_node and msg.content:
+            if not msg.tool_calls and not internal_node and msg.content:
                 await remove_meessage(working_message)
                 working_message = None
                 await final_answer.stream_token(msg.content)

@@ -14,7 +14,7 @@ RUN uv sync --frozen --no-install-project
 # Copy the project into the image
 COPY . /app
 
-# Sync the project. Install spacy models
-RUN uv sync --frozen && uv run spacy download en_core_web_md
+# Sync the project
+RUN uv sync --frozen
 
-CMD ["/app/.venv/bin/fastapi", "run", "--app", "app", "src/wordpress_chatbot/app.py"]
+CMD ["uv", "run", "chainlit", "run", "src/wordpress_chatbot/chat.py", "-w"]
