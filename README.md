@@ -4,31 +4,26 @@ AI-powered WordPress analytics platform with MCP (Model Context Protocol), LangC
 
 Ask natural language questions about your WordPress deployment and receive actionable insights — all powered by mock data for development.
 
-## Architecture
+> See [`architecture.md`](architecture.md) for project structure and architecture details.
 
-```text
-┌──────────────────────────────────┐
-│     Single Server (port 8000)    │
-│                                  │
-│  ┌────────────┐  ┌────────────┐  │
-│  │  Chainlit   │  │   FastMCP  │  │
-│  │  Chat UI    │  │  SSE at    │  │
-│  │  (/)        │  │  (/mcp)    │  │
-│  └──────┬─────┘  └──────┬─────┘  │
-└─────────┼────────────────┼────────┘
-          │                │
-          ▼                ▼
-┌──────────────────────────────────┐
-│   create_agent (LangChain)       │
-│   LLM + 8 tools                  │
-│   Observation → Analysis → Rec   │
-└──────────────┬───────────────────┘
-               │
-               ▼
-┌──────────────────────────────────┐
-│      WordPressMockProvider       │
-│      (single data source)        │
-└──────────────────────────────────┘
+## Quick Start
+
+```bash
+# 1. Install dependencies
+make install
+
+# 2. Start the app
+make run
+```
+
+Open **http://localhost:8000** for the Chainlit chat UI.
+
+Use **http://localhost:8000/mcp** to connect an MCP client.
+
+## Install
+
+```bash
+make install
 ```
 
 ## Tech Stack
@@ -63,16 +58,6 @@ Uses LangChain's `create_agent` with a ReAct loop — the LLM decides which tool
 2. **Analysis** — why it matters
 3. **Recommendation** — what to do about it
 
-### 📊 MCP Resources (4 resources)
-- `site://plugins` — Plugin overview with usage data
-- `site://performance` — Performance metrics and slow pages
-- `site://traffic` — Traffic summary
-- `site://security` — Security report and findings
-
-### 💬 MCP Prompts (3 prompts)
-- `analyze_site_health` — Comprehensive site health analysis
-- `security_audit` — Focused security audit
-- `performance_audit` — Performance analysis
 
 ## Quick Start
 
@@ -82,19 +67,13 @@ Uses LangChain's `create_agent` with a ReAct loop — the LLM decides which tool
 - [uv](https://github.com/astral-sh/uv)
 - An LLM API key (e.g., `OPENAI_API_KEY` for `gpt-4o-mini`)
 
-### 1. Install
-
-```bash
-make install
-```
-
-### 2. Run Tests
+### Run Tests
 
 ```bash
 make test
 ```
 
-### 3. Start the Server
+### Start the Server
 
 ```bash
 # Set your API key
@@ -119,26 +98,6 @@ The MCP server is available at **http://localhost:8000/mcp** (redirects to SSE).
 | Plugins | "Which plugins impact performance?" |
 | Users | "Which users are inactive?" |
 | Mixed | "Give me a site overview" |
-
-## Project Structure
-
-```text
-src/
-└── wordpress_chatbot/
-    ├── __init__.py
-    ├── __main__.py         # FastAPI server (entry point)
-    ├── chat.py             # Chainlit UI handlers
-    ├── settings.py         # App configuration
-    ├── graph/
-    │   └── agent.py        # create_agent + 8 LangChain tools
-    ├── mcp/
-    │   └── server.py       # FastMCP server (tools, resources, prompts)
-    └── providers/
-        └── wordpress_mock.py  # Mock WordPress data provider
-
-tests/
-└── test_providers.py        # Provider tests
-```
 
 ## Configuration
 
